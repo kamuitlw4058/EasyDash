@@ -5,6 +5,7 @@ from dash import dcc
 from dash import html
 from dash import Output,Input,State
 from dash import dash_table
+from dash import ALL,MATCH
 
 import dash_dangerously_set_inner_html as dhtml
 
@@ -14,7 +15,7 @@ from easy_dash.utils.engine import conver_python_sql
 from  sqlalchemy import create_engine
 
 SIDEBAR_STYLE = {
-    "position": "fixed",
+    "position": "fixed", 
     "top": 0,
     "left": 0,
     "bottom": 0,
@@ -26,10 +27,23 @@ SIDEBAR_STYLE = {
     'overflowY': 'auto'
 }
 
+HEADER_STYLE = {
+    "position": "fixed", 
+    "top": 0,
+    "left": 0,
+    # "bottom": 0,
+    "right":0,
+    "margin-left": "18rem",
+    # "padding": "1rem 0rem 1rem 1rem",
+    "padding": "0rem",
+    'overflowY': 'auto'
+}
+
 CONTENT_STYLE = {
+    "margin-top": "3rem",
     "margin-left": "18rem",
     "margin-right": "0rem",
-    "padding": "0rem 0rem",
+    "padding": "1rem",
 }
 
 NAVBAR_STYLE = {
@@ -46,12 +60,9 @@ TOTAL_STYLE={
 }
 
 BREADCRUMB_TYPE = {
-"padding": "0.5rem 0.5rem 0.5rem 1rem",
+"padding": "0rem 0rem 0rem 1rem",
 }
 
-CONTENT_PAGE_STYLE = {
-"padding": "0rem",
-}
 
 
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
@@ -93,10 +104,10 @@ class EasyApp():
                 ret.append(dbc.Row(breadcrumb))
                 page_layout = page.layout()
                 if isinstance(page_layout,list):
-                    page_layout = [dbc.Row(layout) for layout in page_layout]
                     ret.extend(page_layout)
                 else:
-                    ret.append(html.Div(page.layout(),style =CONTENT_PAGE_STYLE))
+                    ret.append(page.layout())
+
                 return ret
             ret.append(
                 html.Div(
@@ -118,7 +129,10 @@ class EasyApp():
                 className="p-3 bg-light rounded-3",
                 # className = "align-items-md-stretch"
             ))
-            return  html.Div(ret,style =CONTENT_PAGE_STYLE)
+            return  html.Div(ret)
+        
+        for page_path,page in self.page_dict.items():
+            page.init_callback(app=self.app)
 
     def run(self):
         self.app.run_server()
@@ -144,7 +158,7 @@ class EasyApp():
         module_accordion_list = []
         for module_name,module_dict in modules.items():
             module_pages = module_dict.get('pages',[])
-            module_page_titles = [dbc.NavLink(i.page_name, href=f"/{i.module_name}/{i.page_name}", active="partial") for i in  module_pages]
+            module_page_titles = [dbc.NavLink(i.page_name, href=f"/{i.module_name}/{i.page_name}", active="exact") for i in  module_pages]
             module_accordion_list.append(
                 dbc.AccordionItem(
                     module_page_titles,
@@ -189,45 +203,11 @@ class EasyApp():
         ]
         return html.Div(base_control,style=SIDEBAR_STYLE)
     
-    def navbar(self):
-        @self.app.callback(
-            Output("navbar-collapse", "is_open"),
-            [Input("navbar-toggler", "n_clicks")],
-            [State("navbar-collapse", "is_open")],
-        )
-        def toggle_navbar_collapse(n, is_open):
-            if n:
-                return not is_open
-            return is_open
-
-        return dbc.Navbar(
-            dbc.Container(
-                [
-                    html.A(
-                        # Use row and col to control vertical alignment of logo / brand
-                        dbc.Row(
-                            [
-                                dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-                                dbc.Col(dbc.NavbarBrand("Navbar", className="ms-2")),
-                            ],
-                            align="left",
-                            className="g-0",
-                        ),
-                        href="https://plotly.com",
-                        style={"textDecoration": "none"},
-                    ),
-
-
-                ]
-            ),
-            color="dark",
-            dark=True,
-        )
-
     
     def content(self):
         return  html.Div([
-            dbc.Row( dbc.Navbar(
+            html.Div(
+                    dbc.Navbar(
                     dbc.Container(
                         [
                             html.A(
@@ -248,19 +228,13 @@ class EasyApp():
                     ),
                     color="dark",
                     dark=True,
-                )
-                ),
-                dbc.Row(html.Div(id='page-content')),
-                
-            ],style=CONTENT_STYLE)
+                ),style= HEADER_STYLE),
+             html.Div(dbc.Row(html.Div(id='page-content')),style=CONTENT_STYLE)])
+        
 
 
     def normal(self,pages=None):
-        if pages is None:
-            pages =[]
-        
         self.init_callback()
-
         self.app.layout = html.Div([
             dcc.Location(id="url"),
             self.side_bar(),
