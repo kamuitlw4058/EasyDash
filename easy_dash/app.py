@@ -158,11 +158,18 @@ class EasyApp():
         module_accordion_list = []
         for module_name,module_dict in modules.items():
             module_pages = module_dict.get('pages',[])
-            module_page_titles = [dbc.NavLink(i.page_name, href=f"/{i.module_name}/{i.page_name}", active="exact") for i in  module_pages]
+            module_page_titles = []
+            module_title = module_name
+            for page in module_pages:
+                page_title = page.page_title if page.page_title is not None else page.page_name
+                module_title = page.module_title if page.module_title is not None else page.module_name
+                module_page_titles.append(dbc.NavLink(page_title, href=f"/{page.module_name}/{page.page_name}", active="exact"))
+                
+            # module_page_titles = [dbc.NavLink(i.page_name, href=f"/{i.module_name}/{i.page_name}", active="exact") for i in  module_pages]
             module_accordion_list.append(
                 dbc.AccordionItem(
                     module_page_titles,
-                    title=module_name,
+                    title=module_title,
                 ))
 
         base_control = [

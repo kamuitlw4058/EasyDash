@@ -5,8 +5,8 @@ from easy_dash.app import *
 
 
 class AutoDetailPage(Page):
-    def __init__(self, module_name, page_name,update_func=None,update_params:dict=None, context=None):
-        super().__init__(module_name, page_name)
+    def __init__(self, module_name, page_name, update_func=None,update_params:dict=None, context=None,module_title=None, page_title=None):
+        super().__init__(module_name, page_name, module_title, page_title)
         self.context = context
         self.update_func = update_func
         self.update_params = update_params
@@ -26,6 +26,7 @@ class AutoDetailPage(Page):
             for (i, value) in enumerate(list(self.update_params.keys())):
                 self.update_params_inverted_index[i] = value
                 self.update_params_index[value] = i
+
     
     def button_id(self):
         return f"{self.page_key()}-update-button"

@@ -171,12 +171,12 @@ def update_list_func(params):
     r = requests.post('http://route-log-api.51xpx.com/get_log_list',json=d)
     return r.json()['data']    
 
-log_list_page= AutoDetailPage('detail_test','aglo_log_list',update_func=update_list_func,update_params={
+log_list_page= AutoDetailPage('detail_test','aglo_log_list',module_title='智能路由日志',page_title="日志列表", update_func=update_list_func,update_params={
     "page":1,
     "limit":10,
     "order_sn":"220214161738399667"
 })
-detail_page= AutoDetailPage('detail_test','detail_test',update_func=update_func,update_params={"request_id":'a09a635a7289bc4e38c06fef566dfd1e',"data":{"test":"test"}})
+detail_page= AutoDetailPage('detail_test','detail_test',module_title='智能路由日志',page_title="日志详细",update_func=update_func,update_params={"request_id":'a09a635a7289bc4e38c06fef566dfd1e',"data":{"test":"test"}})
 app = EasyApp(pages=[
     iwn_store_watch_table_page,
     iwn_store_car_type_table_page,

@@ -9,9 +9,10 @@ from  sqlalchemy import create_engine
 
 
 class DBTablePage(Page):
-    def __init__(self, module_name, page_name,sql):
-        super().__init__(module_name, page_name)
+    def __init__(self, module_name, page_name, sql,module_title=None, page_title=None):
+        super().__init__(module_name, page_name, module_title, page_title)
         self.sql = sql
+
 
     def init_callback(self,app=None):
         # print('init callback')
