@@ -1,3 +1,4 @@
 dist/
 easy_dash.egg-info/
 build/
+*.pyc
