@@ -21,7 +21,8 @@ app = EasyApp(pages=[
     iwn_upstairs_effectiveness_table_page,
     iwn_storage_turnover_cost_table_page,
     log_list_page,
-    detail_page
+    detail_page,
+    detail_page_v2
 ])
 app.normal()
 app.run()
