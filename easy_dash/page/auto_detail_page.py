@@ -1,5 +1,7 @@
 import pandas as pd
 import json
+
+from  easy_dash.model.map import MapModelParams,MapModel
 from easy_dash.page.page import Page
 from easy_dash.app import * 
 
@@ -21,6 +23,8 @@ class AutoDetailPage(Page):
                     self.update_params_type[k] = 'int'
                 elif isinstance(v,float):
                     self.update_params_type[k] = 'float'
+                elif isinstance(v,MapModelParams):
+                    self.update_params_type[k] = 'map'
                 else:
                     self.update_params_type[k] = 'value'
             for (i, value) in enumerate(list(self.update_params.keys())):
@@ -77,6 +81,8 @@ class AutoDetailPage(Page):
                         self.update_params[k] = int(value)
                     elif value_type == 'float':
                         self.update_params[k] = float(value)
+                    elif value_type == 'map':
+                        self.update_params[k] = 'map render'
                     else:
                         self.update_params[k] = json.loads(value)
 
@@ -164,6 +170,8 @@ class AutoDetailPage(Page):
                     )
                 )
             )
+        elif isinstance(context,MapModelParams):
+            ret_list.append(MapModel(context).layout())
 
 
     def detail_page(self):
@@ -185,7 +193,7 @@ class AutoDetailPage(Page):
             if self.update_params is not None:
                 input_params_row = []
                 for k,v in self.update_params.items():
-                    if self.update_params_type.get(k,'value') != 'value':
+                    if self.update_params_type.get(k,'value') not in ('map', 'value'):
                         value = json.dumps(v)
                     else:
                         value = v

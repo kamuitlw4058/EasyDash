@@ -1,6 +1,10 @@
 
 import requests
 import pandas as pd
+
+
+from easy_dash.model.map import MapModelParams,MapModel
+
 from easy_dash.app import EasyApp
 from easy_dash.page.page import Page
 from easy_dash.page.db_page import DBTablePage
@@ -177,6 +181,15 @@ log_list_page= AutoDetailPage('order_route_algo_log','log_list',module_title='�
     "order_sn":None
 })
 detail_page= AutoDetailPage('order_route_algo_log','detail_page',module_title='智能路由日志',page_title="日志详细",update_func=update_func,update_params={"request_id":'a09a635a7289bc4e38c06fef566dfd1e',"data":{"test":"test"}})
+
+def test_func(params):
+    pass
+
+
+map_page= AutoDetailPage('map','map_detail',module_title='地图测试',page_title="地图显示",
+update_func=None,context={"request_id":'a09a635a7289bc4e38c06fef566dfd1e',"data":{"test":"test"},
+'地图':MapModelParams([])})
+
 app = EasyApp(pages=[
     iwn_store_watch_table_page,
     iwn_store_car_type_table_page,
@@ -185,7 +198,8 @@ app = EasyApp(pages=[
     iwn_upstairs_effectiveness_table_page,
     iwn_storage_turnover_cost_table_page,
     log_list_page,
-    detail_page
+    detail_page,
+    map_page
 ])
 app.normal()
 app.run()
