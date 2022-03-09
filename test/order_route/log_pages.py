@@ -23,13 +23,19 @@ def update_list_func(params):
 
 
 def get_log_detail(params):
+    url = params.get('url','online')
+    if url == 'online':
+        url = 'mysql+pymysql://xpx_data_only:8C5bWCLkDW@rm-bp10h91kf7w6i19k0ko.mysql.rds.aliyuncs.com:3306/xpx_data'
+    elif url == 'pre':
+        url = 'mysql+pymysql://xpx_db:Aa112233445566@rm-bp17v62z92lrim3w2zo.mysql.rds.aliyuncs.com:3306/xpx_data'
+
     request_id = params.get('request_id',None)
     if request_id is None:
         order_sn= params.get('order_sn',None)
         request_order= params.get('request_order',None)
         if order_sn is not None:
             sql = f"""select request_id from iwn_route_work_log where order_sn = '{order_sn}' order by start_time """
-            engine = create_engine('mysql+pymysql://xpx_data_only:8C5bWCLkDW@rm-bp10h91kf7w6i19k0ko.mysql.rds.aliyuncs.com:3306/xpx_data')
+            engine = create_engine(url)
             df = pd.read_sql(conver_python_sql(sql),engine).to_dict('records')
 
             if len(df) > request_order:
@@ -39,7 +45,7 @@ def get_log_detail(params):
 
     if request_id is not None:
         sql = f"""select * from iwn_route_work_log where request_id = '{request_id}'"""
-        engine = create_engine('mysql+pymysql://xpx_data_only:8C5bWCLkDW@rm-bp10h91kf7w6i19k0ko.mysql.rds.aliyuncs.com:3306/xpx_data')
+        engine = create_engine(url)
         df = pd.read_sql(conver_python_sql(sql),engine)
         if df is not None and len(df) > 0:
             order_route_log = df.to_dict('records')[0]
@@ -52,14 +58,16 @@ def get_log_detail(params):
 
             param_content =  json.loads(order_route_log['param_content'])
             address = param_content['order']['address']
+            order_attach = param_content['order']['order_attach']
             order_info["地址"] = address
+            order_info["业务线"] = order_attach
 
             order_skus_df = pd.DataFrame(param_content['order']['skus'])
-            order_skus_df = order_skus_df[['goods_id','goods_attr_id','goods_name','attr_value','weight','volume','count']]
+            order_skus_df = order_skus_df[['sku_id','goods_name','attr_value','weight','volume','count']]
             demand_dict = {}
             skus_demand_list = order_skus_df.to_dict('records')
             for sku_demand in skus_demand_list:
-                sku_id = sku_demand['goods_attr_id']
+                sku_id = sku_demand['sku_id']
                 demand = sku_demand['count']
                 weight = sku_demand['weight']
                 demand_dict[str(sku_id)] = {
@@ -224,6 +232,7 @@ def get_log_detail(params):
 
             result_info = {}
             result =  order_route_log['result']
+            print(result)
             if result is not None:
                 result =  json.loads(result)
                 result_conclusion= {}
@@ -233,7 +242,7 @@ def get_log_detail(params):
                 result_conclusion['总时长'] = result['total_value']['总时长']
                 result_conclusion['总重量'] = result['total_value']['总重量']
                 result_conclusion['费率'] = result['total_value']['费率']
-                result_conclusion['点位成本'] = result['total_value']['点位成本']
+                result_conclusion['点位成本'] = result['total_value'].get('点位成本',0)
 
                 for row in result['cost_dist']:
                     store_id = list(row[0].keys())[0]
@@ -425,6 +434,7 @@ detail_page_v2= AutoDetailPage('order_route_algo_log','detail_page_v2',
                             page_title="日志详细v2",
                             update_func=get_log_detail,
                             update_params={
+                                "url":'online',
                                 "request_id":None,
                                 "order_sn":'220304114941784736',
                                 "request_order":1
