@@ -24,6 +24,19 @@ def update_list_func(params):
 
 def get_log_detail(params):
     request_id = params.get('request_id',None)
+    if request_id is None:
+        order_sn= params.get('order_sn',None)
+        request_order= params.get('request_order',None)
+        if order_sn is not None:
+            sql = f"""select request_id from iwn_route_work_log where order_sn = '{order_sn}' order by start_time """
+            engine = create_engine('mysql+pymysql://xpx_data_only:8C5bWCLkDW@rm-bp10h91kf7w6i19k0ko.mysql.rds.aliyuncs.com:3306/xpx_data')
+            df = pd.read_sql(conver_python_sql(sql),engine).to_dict('records')
+
+            if len(df) > request_order:
+                if request_order > 0:
+                    request_order = request_order -1 
+                request_id = df[request_order]['request_id']
+
     if request_id is not None:
         sql = f"""select * from iwn_route_work_log where request_id = '{request_id}'"""
         engine = create_engine('mysql+pymysql://xpx_data_only:8C5bWCLkDW@rm-bp10h91kf7w6i19k0ko.mysql.rds.aliyuncs.com:3306/xpx_data')
@@ -179,6 +192,7 @@ def get_log_detail(params):
                         "store_id": store_id,
                         "配送距离": delivery_distance,
                         "总时效":schedule_period + delivery_duration +floor_time,
+                        "是否满足时效": remain_time > (schedule_period + delivery_duration +floor_time),
                         "调度时效":schedule_period,
                         "配送时效": delivery_duration,
                         "搬楼时效": floor_time,
@@ -256,6 +270,9 @@ def get_log_detail(params):
                     '方案类型':'假设单仓发尽',
                     '仓库名':store_name,
                     '是否可以发尽':store_info['是否可以发尽'],
+                    '是否满足时效':store_info['是否满足时效'],
+                    '需求时效':remain_time,
+                    '仓库时效':store_info['总时效'],
                     '发货重量':store_info['假设订单发尽-重量'],
                     '总成本':store_info['预估总成本(假设订单发尽)'],
                     '配送距离(km)':store_info['配送距离'],
@@ -342,10 +359,20 @@ def get_log_detail(params):
                 second_s_cost = round(second_d_cost,5)
 
                 first_weight= first_info['假设仓库发尽-重量']
+                first_period = first_info['总时效']
+                first_period_ok = first_info['是否满足时效']
+
+                second_period = second_info['总时效']
+                second_period_ok = second_info['是否满足时效']
+                total_period_ok = first_period_ok and second_period_ok
+
                 ret.append({
                         '方案类型':'双仓',
                         '仓库名':f'{first}(主发)/{second}',
                         '是否可以发尽':finish_order,
+                        '是否满足时效':f'{total_period_ok}({first_period_ok},{second_period_ok})',
+                        '需求时效':remain_time,
+                        '仓库时效':f'{max(first_period,second_period)}({first_period},{second_period})',
                         '发货重量':f'{first_weight+second_weight}({first_weight},{second_weight})',
                         '总成本':str(total_cost) +'('+  str(round(first_cost,2)) + ',' + str(round(second_cost,2)) + f',点位:{point_cost})',
                         '配送距离(km)':str(first_info['配送距离']) + ',' + str(second_info['配送距离']),
@@ -398,6 +425,8 @@ detail_page_v2= AutoDetailPage('order_route_algo_log','detail_page_v2',
                             page_title="日志详细v2",
                             update_func=get_log_detail,
                             update_params={
-                                "request_id":'a09a635a7289bc4e38c06fef566dfd1e',
+                                "request_id":None,
+                                "order_sn":'220304114941784736',
+                                "request_order":1
                                 }
                             )
