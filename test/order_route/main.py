@@ -3,14 +3,14 @@ import sys
 import requests
 import pandas as pd
 from easy_dash.app import EasyApp
-from easy_dash.page.page import Page
-from easy_dash.page.db_page import DBTablePage
-from easy_dash.page.auto_detail_page import AutoDetailPage
 # sys.path.append("../../")
 # print(sys.path)
 
 from db_pages import *
 from log_pages import *
+from map_point import *
+
+
 
 
 app = EasyApp(pages=[
@@ -22,7 +22,9 @@ app = EasyApp(pages=[
     iwn_storage_turnover_cost_table_page,
     log_list_page,
     detail_page,
-    detail_page_v2
+    detail_page_v2,
+    map_page,
+    edit_map_page
 ])
 app.normal()
 app.run()

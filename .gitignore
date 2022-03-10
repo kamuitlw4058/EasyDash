@@ -2,3 +2,7 @@ dist/
 easy_dash.egg-info/
 build/
 *.pyc
+assets/
+*.val
+*.db
+*.DS_Store

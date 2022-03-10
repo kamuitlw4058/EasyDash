@@ -10,6 +10,8 @@ from dash import ALL,MATCH
 import dash_dangerously_set_inner_html as dhtml
 
 import dash_bootstrap_components as dbc
+from dash.long_callback import DiskcacheLongCallbackManager
+import diskcache
 
 from easy_dash.utils.engine import conver_python_sql
 from  sqlalchemy import create_engine
@@ -72,9 +74,16 @@ PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 class EasyApp():
 
     def __init__(self,title='EasyApp',pages=None):
+        chroma = "https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"  # js lib used for colors
+
+
+        # self.cache = diskcache.Cache("./cache")
+        # self.long_callback_manager = DiskcacheLongCallbackManager(self.cache)
         self.app = dash.Dash(title=title,
-                        external_stylesheets=[dbc.themes.BOOTSTRAP]
-                        )
+                external_stylesheets=[dbc.themes.BOOTSTRAP],
+                external_scripts=[chroma],
+                # long_callback_manager= self.long_callback_manager
+                )
 
         self.app.config.suppress_callback_exceptions = True
         self.pages = pages

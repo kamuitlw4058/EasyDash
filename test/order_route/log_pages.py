@@ -68,11 +68,13 @@ def get_log_detail(params):
             skus_demand_list = order_skus_df.to_dict('records')
             for sku_demand in skus_demand_list:
                 sku_id = sku_demand['sku_id']
+                sku_name = sku_demand['goods_name']
                 demand = sku_demand['count']
                 weight = sku_demand['weight']
                 demand_dict[str(sku_id)] = {
                     'weight':weight,
-                    'demand':demand
+                    'demand':demand,
+                    'name':sku_name
                 }
 
             supply_info = {}
@@ -158,6 +160,7 @@ def get_log_detail(params):
                         storage_cost = supply_item['cost']['存储成本']
                         purchase_cost = supply_item['cost']['采购成本']
                         sku_dict = demand_dict.get(str(sku_id),{})
+                        sku_name = sku_dict.get('name','')
                         demand = sku_dict.get('demand',0)
                         weight = sku_dict.get('weight',0)
                         sku_delivery_cost =  round(float(weight) * float(store_kg_cost) ,6)
@@ -185,16 +188,18 @@ def get_log_detail(params):
 
                         supply_items.append({
                             'goods_attr_id':sku_id,
+                            '商品名称':sku_name,
                             '采购成本':purchase_cost,
                             '仓储成本':storage_cost,
                             '配送成本': sku_delivery_cost,
                             '库存':nums,
                             '需求':demand,
                             '是否满足需求': nums >= demand,
-                            '预估总成本': sku_total_cost,
+                            '单件总成本': sku_total_cost,
                             '预估总配送成本': sku_delivery_cost * demand,
                             '预估总成本': sku_total_cost * demand,
                         })
+                        
 
                     supply_store_info[store_name] = {
                         "store_id": store_id,

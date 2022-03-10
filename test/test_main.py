@@ -185,10 +185,18 @@ detail_page= AutoDetailPage('order_route_algo_log','detail_page',module_title='�
 def test_func(params):
     pass
 
+def super_order_point(params):
+    keyword = params.get('keyword',None)
+    sql = f"""select xlocal,ylocal from iwn_route_work_log where request_id like '{keyword}%'  and result like '%超级%' limit 1000"""
+    
+
+
 
 map_page= AutoDetailPage('map','map_detail',module_title='地图测试',page_title="地图显示",
-update_func=None,context={"request_id":'a09a635a7289bc4e38c06fef566dfd1e',"data":{"test":"test"},
-'地图':MapModelParams([])})
+    update_func=None,
+    update_params={'keyword':'0309-v6'},
+    context={"request_id":'a09a635a7289bc4e38c06fef566dfd1e',"data":{"test":"test"},
+'地图':MapModelParams([[31.23136, 121.47004]])})
 
 app = EasyApp(pages=[
     iwn_store_watch_table_page,

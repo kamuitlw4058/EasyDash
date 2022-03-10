@@ -54,12 +54,15 @@ class AutoDetailPage(Page):
             @app.callback(
                 Output(self.page_key(), "children"),
                 [Input(self.button_id(), "n_clicks")],
-                [State(self.page_key(), "children")]
+                [State(self.page_key(), "children")],
+                running=[
+                    (Output(self.button_id(), "disabled"), True, False),
+                ],
             )
             def update_page(n, old_page):
-                r =  self.update_func(self.update_params)
-                self.context = r
                 if n:
+                    r =  self.update_func(self.update_params)
+                    self.context = r
                     return self.detail_page()
                 return old_page
 
@@ -86,7 +89,7 @@ class AutoDetailPage(Page):
                     else:
                         self.update_params[k] = json.loads(value)
 
-                return json.dumps(self.update_params)
+                return json.dumps(self.update_params,ensure_ascii=False)
 
     def auto_context(self,ret_list:list,context,layer=0):
         h_dict = {
