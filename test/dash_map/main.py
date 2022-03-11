@@ -99,11 +99,12 @@ app.layout = html.Div([
 def mirror(x):
     ret =[]
     if not x:
+        print('stop update')
         raise PreventUpdate
 
     features = x['features']
     for feature in features:
-        print(feature)
+        # print(feature)
         feature_type = feature['type']
         if feature_type == 'Feature':
             properties = feature['properties']
@@ -119,7 +120,7 @@ def mirror(x):
                         lng2 = geometry['coordinates'][i+1][1]
 
                         distance += geodesic((lng1,lat1), (lng2,lat2)).km
-                    distance = round(distance,3)
+                    distance = round(distance,1)
                     features.append(
                         {
                         'type': 'Feature',
@@ -127,7 +128,6 @@ def mirror(x):
                             'geometry': {'type': 'Point', 'coordinates': geometry['coordinates'][-1]}
                         }
                     )
-
 
     return x
 
