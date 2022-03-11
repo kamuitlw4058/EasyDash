@@ -139,21 +139,21 @@ left join  (
 where status = 1
 """
 
-iwn_store_watch_table_page = DBTablePage('algo_mysql','iwn_store_watch',store_sql)
+iwn_store_watch_table_page = DBTablePage('algo_mysql','iwn_store_watch',store_sql,module_title='算法测表')
 iwn_store_car_type_table_page = DBTablePage('algo_mysql','iwn_store_car_type',
-  iwn_store_car_type_sql
+  iwn_store_car_type_sql,module_title='算法测表'
 )
 
 iwn_store_car_type_point_table_page = DBTablePage('algo_mysql','iwn_store_car_type_point',
-  iwn_store_car_type_point_sql
+  iwn_store_car_type_point_sql,module_title='算法测表'
 )
 iwn_upstairs_effectiveness_table_page = DBTablePage('algo_mysql','iwn_upstairs_effectiveness',
-  iwn_upstairs_effectiveness_sql
+  iwn_upstairs_effectiveness_sql,module_title='算法测表'
 )
 iwn_base_car_type_table_page = DBTablePage('algo_mysql','iwn_base_car_type',
-  iwn_base_car_type_sql
+  iwn_base_car_type_sql,module_title='算法测表'
 )
 
 iwn_storage_turnover_cost_table_page = DBTablePage('algo_mysql','iwn_storage_turnover_cost',
-  iwn_storage_turnover_cost_sql
+  iwn_storage_turnover_cost_sql,module_title='算法测表'
 )
