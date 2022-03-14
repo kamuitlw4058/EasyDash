@@ -144,7 +144,7 @@ class EasyApp():
             page.init_callback(app=self.app)
 
     def run(self):
-        self.app.run_server()
+        self.app.run_server(host='0.0.0.0')
 
 
     def layout(self,content):
