@@ -40,3 +40,4 @@ SQLAlchemy==1.4.32
 tenacity==8.0.1
 urllib3==1.26.8
 Werkzeug==2.0.3
+PyMySQL==1.0.2
