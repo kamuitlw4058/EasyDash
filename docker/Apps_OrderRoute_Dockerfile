@@ -1,5 +1,5 @@
 
-FROM kimiwangx/easy_dash:v0.1
+FROM registry-vpc.cn-hangzhou.aliyuncs.com/xpx-server/easy_dash:v0.1
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
