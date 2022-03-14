@@ -8,9 +8,10 @@ from easy_dash.app import *
 
 
 class DBTablePage(Page):
-    def __init__(self, module_name, page_name, sql,module_title=None, page_title=None):
+    def __init__(self, module_name, page_name,url, sql,module_title=None, page_title=None):
         super().__init__(module_name, page_name, module_title, page_title)
         self.sql = sql
+        self.url = url
 
 
     def init_callback(self,app=None):
@@ -28,7 +29,7 @@ class DBTablePage(Page):
 
 
     def layout(self):
-        engine = create_engine('mysql+pymysql://xpx_data_only:8C5bWCLkDW@rm-bp10h91kf7w6i19k0ko.mysql.rds.aliyuncs.com:3306/xpx_data')
+        engine = create_engine(self.url)
         df = pd.read_sql(conver_python_sql(self.sql),engine)
 
         return [

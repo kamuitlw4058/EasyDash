@@ -9,7 +9,7 @@ store_sql = """
 select 
     wh.store_id,
     wh.parent_id,
-    concat(s.store_name,'.',wh.store_name) as `仓库名称`,
+    concat(if(s.store_name is null,'',s.store_name),'.',if(wh.store_name is null,'',wh.store_name)) as `仓库名称`,
     wh.store_type,
     s.address as `地址`,
     s.xlocal,
@@ -23,8 +23,7 @@ select
     xlocal,
     ylocal 
 from iwn_store_watch 
-where parent_id != 0
-    and status = 1
+where  status = 1
 ) wh
 left join iwn_store_watch s on wh.parent_id = s.store_id 
 """
@@ -139,21 +138,22 @@ left join  (
 where status = 1
 """
 
-iwn_store_watch_table_page = DBTablePage('algo_mysql','iwn_store_watch',store_sql,module_title='算法测表')
-iwn_store_car_type_table_page = DBTablePage('algo_mysql','iwn_store_car_type',
+db_url = 'mysql+pymysql://xpx_db:Aa112233445566@rm-bp17v62z92lrim3w2zo.mysql.rds.aliyuncs.com:3306/xpx_data'
+iwn_store_watch_table_page = DBTablePage('algo_mysql','iwn_store_watch',db_url, store_sql,module_title='算法测表')
+iwn_store_car_type_table_page = DBTablePage('algo_mysql','iwn_store_car_type',db_url,
   iwn_store_car_type_sql,module_title='算法测表'
 )
 
-iwn_store_car_type_point_table_page = DBTablePage('algo_mysql','iwn_store_car_type_point',
+iwn_store_car_type_point_table_page = DBTablePage('algo_mysql','iwn_store_car_type_point',db_url,
   iwn_store_car_type_point_sql,module_title='算法测表'
 )
-iwn_upstairs_effectiveness_table_page = DBTablePage('algo_mysql','iwn_upstairs_effectiveness',
+iwn_upstairs_effectiveness_table_page = DBTablePage('algo_mysql','iwn_upstairs_effectiveness',db_url,
   iwn_upstairs_effectiveness_sql,module_title='算法测表'
 )
-iwn_base_car_type_table_page = DBTablePage('algo_mysql','iwn_base_car_type',
+iwn_base_car_type_table_page = DBTablePage('algo_mysql','iwn_base_car_type',db_url,
   iwn_base_car_type_sql,module_title='算法测表'
 )
 
-iwn_storage_turnover_cost_table_page = DBTablePage('algo_mysql','iwn_storage_turnover_cost',
+iwn_storage_turnover_cost_table_page = DBTablePage('algo_mysql','iwn_storage_turnover_cost',db_url,
   iwn_storage_turnover_cost_sql,module_title='算法测表'
 )

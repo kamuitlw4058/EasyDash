@@ -281,9 +281,10 @@ def get_log_detail(params):
             single_store_list =[]
             for store_name,store_info in supply_info['仓库信息'].items():
                 try_route.append({
-                    '方案类型':'假设单仓发尽',
+                    '方案类型':'单仓发尽',
                     '仓库名':store_name,
                     '是否可以发尽':store_info['是否可以发尽'],
+                    '副仓是否发货':'-',
                     '是否满足时效':store_info['是否满足时效'],
                     '需求时效':remain_time,
                     '仓库时效':store_info['总时效'],
@@ -298,20 +299,6 @@ def get_log_detail(params):
                 })
                 if store_info['是否可以发尽']:
                     single_store_list.append(store_name)
-                # else:
-                #     try_route.append({
-                #     '方案类型':'单仓不发尽',
-                #     '仓库名':store_name,
-                #     '是否可以发尽':store_info['是否可以发尽'],
-                #     '发货重量':store_info['假设仓库发尽-重量'],
-                #     '总成本':store_info['预估总成本(假设仓库发尽)'],
-                #     '配送距离(km)':store_info['配送距离'],
-                #     '车型':store_info['预估配送车型(假设仓库发尽)'],
-                #     '配送费率':store_info['预估配送费率(假设仓库发尽)'],
-                #     '配送成本':store_info['预估配送成本(假设仓库发尽)'],
-                #     '采购成本':store_info['预估采购成本(假设仓库发尽)'],
-                #     '仓储成本':store_info['预估仓储成本(假设仓库发尽)'],
-                # })  
                 
                 
             com_list = []
@@ -372,7 +359,8 @@ def get_log_detail(params):
                 second_p_cost = round(second_d_cost,5)
                 second_s_cost = round(second_d_cost,5)
 
-                first_weight= first_info['假设仓库发尽-重量']
+                first_weight= round(first_info['假设仓库发尽-重量'],3)
+                second_weight= round(second_weight,3)
                 first_period = first_info['总时效']
                 first_period_ok = first_info['是否满足时效']
 
@@ -380,13 +368,15 @@ def get_log_detail(params):
                 second_period_ok = second_info['是否满足时效']
                 total_period_ok = first_period_ok and second_period_ok
 
+
                 ret.append({
                         '方案类型':'双仓',
                         '仓库名':f'{first}(主发)/{second}',
                         '是否可以发尽':finish_order,
-                        '是否满足时效':f'{total_period_ok}({first_period_ok},{second_period_ok})',
+                        '副仓是否发货':str(second_weight > 0),
+                        '是否满足时效':f'{total_period_ok}',
                         '需求时效':remain_time,
-                        '仓库时效':f'{max(first_period,second_period)}({first_period},{second_period})',
+                        '仓库时效':f'{int(max(first_period,second_period))}',
                         '发货重量':f'{first_weight+second_weight}({first_weight},{second_weight})',
                         '总成本':str(total_cost) +'('+  str(round(first_cost,2)) + ',' + str(round(second_cost,2)) + f',点位:{point_cost})',
                         '配送距离(km)':str(first_info['配送距离']) + ',' + str(second_info['配送距离']),
