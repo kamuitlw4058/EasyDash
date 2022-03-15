@@ -2,21 +2,26 @@ import pandas as pd
 import json
 
 from  easy_dash.model.map import MapModelParams,MapModel
+from easy_dash.model.options import OptionModelParams,OptionModel
 from easy_dash.page.page import Page
 from easy_dash.app import * 
 
 
 class AutoDetailPage(Page):
-    def __init__(self, module_name, page_name, update_func=None,update_params:dict=None, context=None,module_title=None, page_title=None):
+    def __init__(self, module_name, page_name, update_func=None,update_params:dict=None, context=None,module_title=None, page_title=None,depend=None):
         super().__init__(module_name, page_name, module_title, page_title)
         self.context = context
         self.update_func = update_func
         self.update_params = update_params
+        self.update_output_params = {}
         self.update_params_type = {}
         self.update_params_index = {}
         self.update_params_inverted_index = {}
+        self.update_params_obj_dict ={}
+        self.depend = depend
         if update_params is not None:
             for k,v in self.update_params.items():
+                print(f'k:{k} v:{v}')
                 if isinstance(v,dict) or isinstance(v,list):
                     self.update_params_type[k] = 'json'
                 elif isinstance(v,int):
@@ -25,8 +30,11 @@ class AutoDetailPage(Page):
                     self.update_params_type[k] = 'float'
                 elif isinstance(v,MapModelParams):
                     self.update_params_type[k] = 'map'
+                elif isinstance(v,OptionModelParams):
+                    self.update_params_type[k] = 'option'
                 else:
                     self.update_params_type[k] = 'value'
+                print(f'k:{k} rv:{self.update_params_type[k]}')
             for (i, value) in enumerate(list(self.update_params.keys())):
                 self.update_params_inverted_index[i] = value
                 self.update_params_index[value] = i
@@ -47,6 +55,9 @@ class AutoDetailPage(Page):
     def params_key2index(self,k):
         return self.update_params_index.get(k,None)
 
+    def sub_id(self,sub_key):
+        return f'{self.page_key()}-{sub_key}'
+
 
     def init_callback(self,app=None):
         # print('init callback')
@@ -66,30 +77,70 @@ class AutoDetailPage(Page):
                     return self.detail_page()
                 return old_page
 
-            
+            inputs = {}
+            for k in self.update_params.keys():
+                inputs[self.sub_id(k)] = Input(self.sub_id(k),'value')
+
             @app.callback(
-                Output(self.params_output_id(), 'children'),
-                Input({'type': self.params_input_id(), 'index': ALL}, 'value')
+                output = Output(self.params_output_id(), 'children'),
+                inputs = {'values': inputs}
             )
             def params_result(values):
-                for (i, value) in enumerate(values):
-                    k = self.update_params_inverted_index[i]
+                print( f'params:{values}')
+                update_output_params = {}
+                for k,value in values.items():
                     value_type = self.update_params_type.get(k,'value')
                     if value_type == 'value':
                         if value is None or  len(value) == 0:
-                            self.update_params[k] = None
+                            update_output_params[k] = None
                         else:
-                            self.update_params[k] = value
+                            update_output_params[k] = value
                     elif value_type == 'int':
-                        self.update_params[k] = int(value)
+                        update_output_params[k] = int(value)
                     elif value_type == 'float':
-                        self.update_params[k] = float(value)
+                        update_output_params[k] = float(value)
                     elif value_type == 'map':
-                        self.update_params[k] = 'map render'
+                        update_output_params[k] = 'map render'
+                    elif value_type == 'option':
+                        update_output_params[k] = value
                     else:
-                        self.update_params[k] = json.loads(value)
+                       update_output_params[k] = json.loads(value)
 
-                return json.dumps(self.update_params,ensure_ascii=False)
+                return json.dumps(update_output_params,ensure_ascii=False)
+            
+            for k,v in self.update_params.items():
+                if isinstance(v,OptionModelParams):
+                    option = OptionModel(v,id = self.sub_id(k))
+                    # option.init_callback(app=app)
+                    self.update_params_obj_dict[k] = (option.layout(),option)
+                else:
+                    update_params_type =  self.update_params_type.get(k,'value') 
+                    if update_params_type not in ('map', 'option','value'):
+                        value = json.dumps(v)
+                    else:
+                        value = v
+
+                    self.update_params_obj_dict[k] = (dbc.Input(type="text", value=value,id=self.sub_id(k)),None)
+
+            depend_model_list = []
+
+            for k,v in self.update_params_obj_dict.items():
+                if v[1] is not None:
+                    model = v[1]
+                    depend_list  =  self.depend.get(k,None)
+                    inputs = []
+                    for i in depend_list:
+                        inputs.append((self.sub_id(i),'value'))
+
+                    model.set_inputs(inputs)
+                    layout = model.layout()
+                    depend_model_list.append((k,layout,model))
+            
+            for k,layout,model in depend_model_list:
+                model.init_callback(app=app)
+                self.update_params_obj_dict[k] = (layout,model)
+                
+                
 
     def auto_context(self,ret_list:list,context,layer=0):
         h_dict = {
@@ -175,6 +226,8 @@ class AutoDetailPage(Page):
             )
         elif isinstance(context,MapModelParams):
             ret_list.append(MapModel(context).layout())
+        elif isinstance(context,OptionModelParams):
+            ret_list.append(OptionModel(context).layout())
 
 
     def detail_page(self):
@@ -196,17 +249,10 @@ class AutoDetailPage(Page):
             if self.update_params is not None:
                 input_params_row = []
                 for k,v in self.update_params.items():
-                    if self.update_params_type.get(k,'value') not in ('map', 'value'):
-                        value = json.dumps(v)
-                    else:
-                        value = v
-
+                    layout,model = self.update_params_obj_dict[k]
                     input_params_row.append(dbc.Row([
                                 dbc.Label(k,width=2),
-                                dbc.Col(dbc.Input(type="text", value=value,id={
-                                    "type":self.params_input_id(),
-                                    "index":self.params_key2index(k)
-                                }),width=5)
+                                dbc.Col(layout,width=5)
 
                             ],
                         ))
