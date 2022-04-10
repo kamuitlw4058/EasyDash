@@ -1,4 +1,6 @@
 import json
+
+from jmespath import search
 from dash.exceptions import PreventUpdate
 from dash_extensions.javascript import assign
 
@@ -14,19 +16,16 @@ class OptionModelParams():
         self.options_states = options_states
         self.option_update_func = option_update_func
 
-class OptionModel(Element):
-    def __init__(self,params:OptionModelParams,id=None):
-        super(OptionModel, self).__init__(id=id)
-        self.params = params
-        self.options = params.options
-        self.options_inputs = params.options_inputs
-        self.options_states = params.options_states
-        self.option_update_func = params.option_update_func
-        self.multi = params.multi
-    
-    def set_inputs(self,inputs):
-        self.options_inputs = inputs
-    
+class Option(Element):
+    def __init__(self,options=None,multi=False, option_update_func=None,options_inputs=None,id=None):
+        super(Option, self).__init__(id=id)
+
+        self.multi = multi
+        self.options = options
+        self.options_inputs = options_inputs
+        # self.options_states = options_states
+        self.option_update_func = option_update_func
+
     def parse_options_inputs(self):
         if self.options_inputs is not None and isinstance(self.options_inputs,list):
             ret = {}
@@ -36,18 +35,18 @@ class OptionModel(Element):
             return ret
         return {}
 
-    def parse_options_states(self):
-        if self.options_states is not None and isinstance(self.options_states,list):
-            ret = {}
-            for (k,v) in self.options_states:
-                params_key =  f'{k}#{v}'
-                ret[params_key]= State(k,v)
-            return ret
-        return {}
+    # def parse_options_states(self):
+    #     if self.options_states is not None and isinstance(self.options_states,list):
+    #         ret = {}
+    #         for (k,v) in self.options_states:
+    #             params_key =  f'{k}#{v}'
+    #             ret[params_key]= State(k,v)
+    #         return ret
+    #     return {}
     
     def init_callback(self,app=None):
         if app is not None :
-            print('init options')
+            # print('init options')
             if not self.multi:
                 @app.callback(
                     Output(self.id(), "options"),
@@ -55,17 +54,21 @@ class OptionModel(Element):
                     Input(self.store_id(), "data")
                 )
                 def update_options(search_value,store_data:dict):
-                    print(f'store_data:{store_data}')
-                    # if not search_value or not self.options:
+                    # if not search_value :
                     #     raise PreventUpdate
 
-                    print(f'store_data:{store_data}')
                     if store_data:
                         options=  store_data.get('options',[])
                     else:
                         options = self.options
 
-                    return [o for o in options if  str(o["label"]).find(search_value) >= 0 ]
+                    # print(options)
+                    if search_value:
+                        ret = [o for o in options if  str(o["label"]).find(search_value) >= 0 ]
+                    else:
+                        ret = options
+
+                    return ret
             else:
 
                 @app.callback(
@@ -86,27 +89,30 @@ class OptionModel(Element):
                         o for o in options if  str(o["label"]).find(search_value) >= 0 or o["value"] in (value or [])
                     ]
             
-            if len(self.parse_options_inputs()) > 0:
-                @app.callback(
-                    output=Output(self.store_id(), "data"),
-                    inputs={
-                        'inputs':self.parse_options_inputs(),
-                        'states':self.parse_options_states()
-                    },
-                )
-                def update_options_func(inputs,states):
-                    if self.option_update_func is not None:
-                        r= self.option_update_func(inputs,states)
-                        print(r)
-                        return {
-                            'options':r
-                        }
-                    return {
-                        'options':[]
-                    }
+            if   self.options_inputs is None and self.option_update_func is not None:
+                self.options = self.option_update_func(None,None)
+            
+            # if len(self.parse_options_inputs()) > 0:
+            #     @app.callback(
+            #         output=Output(self.store_id(), "data"),
+            #         inputs={
+            #             'inputs':self.parse_options_inputs(),
+            #             'states':self.parse_options_states()
+            #         },
+            #     )
+            #     def update_options_func(inputs,states):
+            #         if self.option_update_func is not None:
+            #             r= self.option_update_func(inputs,states)
+            #             print(r)
+            #             return {
+            #                 'options':r
+            #             }
+            #         return {
+            #             'options':[]
+            #         }
 
     def layout(self):
-            print(self.id())
+            # print(self.id())
             return [
                 dcc.Dropdown(id=self.id(), multi=self.multi,options = self.options),
                 dcc.Store(id=self.store_id(), storage_type='local'),

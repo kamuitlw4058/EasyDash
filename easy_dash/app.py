@@ -93,6 +93,7 @@ class EasyApp():
                 module_name = page.module_name
                 page_name = page.page_name
                 self.page_dict[f'{module_name}/{page_name}'] = page
+        self.title = title
     
 
     def init_callback(self):
@@ -192,7 +193,7 @@ class EasyApp():
                                 dbc.Row(
                                     [
                                         dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
-                                        dbc.Col(dbc.NavbarBrand("Navbar", className="ms-2")),
+                                        dbc.Col(dbc.NavbarBrand(self.title, className="ms-2")),
                                     ],
                                     align="center",
                                     className="g-0",
