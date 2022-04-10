@@ -2,7 +2,7 @@ import pandas as pd
 import json
 
 from  easy_dash.model.map import MapModelParams,MapModel
-from easy_dash.model.options import OptionModelParams,OptionModel
+from easy_dash.model.options import OptionModelParams,Option
 from easy_dash.page.page import Page
 from easy_dash.app import * 
 
@@ -110,7 +110,7 @@ class AutoDetailPage(Page):
             
             for k,v in self.update_params.items():
                 if isinstance(v,OptionModelParams):
-                    option = OptionModel(v,id = self.sub_id(k))
+                    option = Option(v,id = self.sub_id(k))
                     # option.init_callback(app=app)
                     self.update_params_obj_dict[k] = (option.layout(),option)
                 else:
@@ -122,23 +122,23 @@ class AutoDetailPage(Page):
 
                     self.update_params_obj_dict[k] = (dbc.Input(type="text", value=value,id=self.sub_id(k)),None)
 
-            depend_model_list = []
+            # depend_model_list = []
 
-            for k,v in self.update_params_obj_dict.items():
-                if v[1] is not None:
-                    model = v[1]
-                    depend_list  =  self.depend.get(k,None)
-                    inputs = []
-                    for i in depend_list:
-                        inputs.append((self.sub_id(i),'value'))
+            # for k,v in self.update_params_obj_dict.items():
+            #     if v[1] is not None:
+            #         model = v[1]
+            #         depend_list  =  self.depend.get(k,None)
+            #         inputs = []
+            #         for i in depend_list:
+            #             inputs.append((self.sub_id(i),'value'))
 
-                    model.set_inputs(inputs)
-                    layout = model.layout()
-                    depend_model_list.append((k,layout,model))
+            #         model.set_inputs(inputs)
+            #         layout = model.layout()
+            #         depend_model_list.append((k,layout,model))
             
-            for k,layout,model in depend_model_list:
-                model.init_callback(app=app)
-                self.update_params_obj_dict[k] = (layout,model)
+            # for k,layout,model in depend_model_list:
+            #     model.init_callback(app=app)
+            #     self.update_params_obj_dict[k] = (layout,model)
                 
                 
 
@@ -227,7 +227,7 @@ class AutoDetailPage(Page):
         elif isinstance(context,MapModelParams):
             ret_list.append(MapModel(context).layout())
         elif isinstance(context,OptionModelParams):
-            ret_list.append(OptionModel(context).layout())
+            ret_list.append(Option(context).layout())
 
 
     def detail_page(self):
