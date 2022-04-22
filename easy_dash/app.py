@@ -116,7 +116,9 @@ class EasyApp():
                 if isinstance(page_layout,list):
                     ret.extend(page_layout)
                 else:
-                    ret.append(page.layout())
+                    ret.append(page)
+
+                print(ret)
 
                 return ret
             ret.append(
