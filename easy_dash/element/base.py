@@ -22,9 +22,11 @@ class Element():
     def store_id(self):
         return f'{self.id()}-store'
 
-
     def init_callback(self,app=None):
         pass
 
+    def to_string(self):
+        return ''
+
     def layout(self,app=None):
-        return html.P(f"This is the content of element[{self.id_string()}]")
+        return html.P(f"This is the content of {type(self)} element. desc:{self.to_string()} [{self.id_string()}]")

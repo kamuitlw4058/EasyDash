@@ -1,7 +1,10 @@
 from easy_dash.model.options import Option
-from easy_dash.element.page import Page
+from easy_dash.element.layout.page import Page
 from easy_dash.element.params.dict_params import DictParams
 from easy_dash.element.table.item_list import ItemList
+from easy_dash.element.layout.rows import Rows
+from easy_dash.element.form.key_value import KeyValueElement
+from easy_dash.element.form.button import CollapseP
 from easy_dash.app import *
 
 item_list =  ItemList(data = [
@@ -69,8 +72,18 @@ content= item_list
 
 )
 
+
+rows_element = Rows([
+    KeyValueElement('test','tttt',display_name='显示名'),
+    KeyValueElement('test2','tttt34',display_name='显示名2'),
+    CollapseP()
+])
+
+
+
 test_page= Page('procurement','test_age',
                             module_title='采购',
                             page_title="测试",
-                            content=dict_element
+                            content=rows_element,
+                            # content=dict_element
                             )

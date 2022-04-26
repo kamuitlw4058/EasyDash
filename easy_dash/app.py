@@ -168,6 +168,9 @@ class EasyApp():
     def side_bar(self):
         modules = self.get_titles()
         module_accordion_list = []
+        sidebar_attr_dict = {
+            'data-bs-target':'#sidebar-test'
+        }
         for module_name,module_dict in modules.items():
             module_pages = module_dict.get('pages',[])
             module_page_titles = []
@@ -182,7 +185,8 @@ class EasyApp():
                 dbc.AccordionItem(
                     module_page_titles,
                     title=module_title,
-                ))
+                    # **sidebar_attr_dict
+                    ))
 
         base_control = [
             dbc.Row(
