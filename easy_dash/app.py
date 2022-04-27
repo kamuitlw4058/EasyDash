@@ -117,9 +117,6 @@ class EasyApp():
                     ret.extend(page_layout)
                 else:
                     ret.append(page)
-
-                print(ret)
-
                 return ret
             ret.append(
                 html.Div(

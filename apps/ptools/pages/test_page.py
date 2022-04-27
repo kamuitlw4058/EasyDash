@@ -4,7 +4,7 @@ from easy_dash.element.params.dict_params import DictParams
 from easy_dash.element.table.item_list import ItemList
 from easy_dash.element.layout.rows import Rows
 from easy_dash.element.form.key_value import KeyValueElement
-from easy_dash.element.form.button import CollapseP
+from easy_dash.element.layout.collapse_section import CollapseSection
 from easy_dash.app import *
 
 item_list =  ItemList(data = [
@@ -76,8 +76,18 @@ content= item_list
 rows_element = Rows([
     KeyValueElement('test','tttt',display_name='显示名'),
     KeyValueElement('test2','tttt34',display_name='显示名2'),
-    CollapseP()
-])
+    CollapseSection('测试1' ,
+            [
+                KeyValueElement('test4','tttt34444',display_name='显示名4'),
+                CollapseSection('测试2' ,
+                    [
+                        KeyValueElement('test34','tttzzzt34444',display_name='显示名5')
+                    ]
+                )
+            ]
+        )
+    ]
+    )
 
 
 

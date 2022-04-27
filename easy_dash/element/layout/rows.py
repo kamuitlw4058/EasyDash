@@ -2,6 +2,8 @@ import pandas as pd
 import json
 
 from easy_dash.element.base import Element
+from easy_dash.element.form.key_value import KeyValueElement
+from easy_dash.element.layout.collapse_section import CollapseSection
 from easy_dash.app import * 
 
 class Rows(Element):
@@ -16,6 +18,15 @@ class Rows(Element):
         if app is not None:
             for row in self.rows:
                 row.init_callback(app=app)
+
+    def to_json(self):
+        ret = {}
+        for row in self.rows:
+            if isinstance(row,KeyValueElement):
+                ret[row.key] = row.value
+            elif isinstance(row,CollapseSection):
+                ret[row.key] = row.value
+                pass
 
     def layout(self, app=None):
         ret = []
