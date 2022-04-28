@@ -2,7 +2,7 @@ from easy_dash.model.options import Option
 from easy_dash.element.layout.page import Page
 from easy_dash.element.params.dict_params import DictParams
 from easy_dash.element.table.item_list import ItemList
-from easy_dash.element.layout.rows import Rows
+from easy_dash.element.layout.rows import RowsElement
 from easy_dash.element.form.key_value import KeyValueElement
 from easy_dash.element.layout.collapse_section import CollapseSection
 from easy_dash.app import *
@@ -73,7 +73,7 @@ content= item_list
 )
 
 
-rows_element = Rows([
+rows_element = RowsElement([
     KeyValueElement('test','tttt',display_name='显示名'),
     KeyValueElement('test2','tttt34',display_name='显示名2'),
     CollapseSection('测试1' ,
