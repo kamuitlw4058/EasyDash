@@ -1,20 +1,13 @@
 from readline import insert_text
 from easy_dash.element.base import Element
-from easy_dash.element.layout.rows import Rows
+from easy_dash.element.layout.rows import RowsElement
 from easy_dash.element.form.key_value import KeyValueElement
 from easy_dash.app import * 
 
 
 class CollapseSection(KeyValueElement):
-    def __init__(self,key, value, level=0, display_name=None, id=None):
-        super().__init__(id=id)
-        self.key = key
-        if display_name is None:
-            self.display_name  = key
-        else:
-            self.display_name = display_name
-
-        self.value = value
+    def __init__(self,key, value, level=0, display_name=None, editabled=True, id=None):
+        super().__init__(key=key,value=value,display_name=display_name,editabled=editabled, id=id)
         self.level = level
     
     def set_level(self,level):
@@ -51,7 +44,9 @@ class CollapseSection(KeyValueElement):
                         row.init_callback(app=app)
                         if isinstance(row,CollapseSection):
                             row.set_level(self.level +1)
-                
+
+
+       
 
     def layout(self, app=None):
         d = {
@@ -63,8 +58,10 @@ class CollapseSection(KeyValueElement):
         if isinstance(self.value,Element):
             ret.append(self.value.layout())
         elif isinstance(self.value,list):
-            print(Rows(self.value).layout())
-            ret.append(Rows(self.value).layout()) 
+            # print(Rows(self.value).layout())
+            ret.append(RowsElement(self.value).layout())
+        else:
+            raise Exception(f'unknown value type:{type(self.value)},need <Element>')
 
 
         if self.level == 0:

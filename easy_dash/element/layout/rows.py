@@ -3,10 +3,11 @@ import json
 
 from easy_dash.element.base import Element
 from easy_dash.element.form.key_value import KeyValueElement
+from easy_dash.element.json_element import JsonElement
 from easy_dash.element.layout.collapse_section import CollapseSection
 from easy_dash.app import * 
 
-class Rows(Element):
+class RowsElement(JsonElement):
     def __init__(self,  rows,buttons=None, update_func=None, content=None,id=None):
         super().__init__(id=id)
         self.init_rows(rows)
@@ -23,10 +24,15 @@ class Rows(Element):
         ret = {}
         for row in self.rows:
             if isinstance(row,KeyValueElement):
-                ret[row.key] = row.value
+                ret[row.key] = row.to_json()
             elif isinstance(row,CollapseSection):
-                ret[row.key] = row.value
-                pass
+                ret[row.key] = row.to_json()
+            else:
+                raise Exception(f'{type(self)} need rows KeyValueElement or CollapseSection')
+        return ret            
+
+    def to_string(self):
+        return super().to_string()
 
     def layout(self, app=None):
         ret = []

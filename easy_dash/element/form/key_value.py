@@ -1,10 +1,10 @@
-
 from easy_dash.element.base import Element
-from easy_dash.app import * 
+# from easy_dash.element.layout.rows import RowsElement
+from easy_dash.element.json_element import JsonElement 
+from easy_dash.app import *
 
-
-class KeyValueElement(Element):
-    def __init__(self,key,value,display_name=None ,disabled=False):
+class KeyValueElement(JsonElement):
+    def __init__(self,key,value,display_name=None ,editabled=True):
         super().__init__(id=id)
         self.key = key
         self.value = value
@@ -12,7 +12,7 @@ class KeyValueElement(Element):
             self.display_name = self.key
         else:
             self.display_name = display_name
-        self.disabled = disabled
+        self.disabled = not editabled
 
     def init_callback(self, app=None):
         if isinstance(self.value,Element):
@@ -21,9 +21,20 @@ class KeyValueElement(Element):
     def value_id(self):
         return f'{self.id()}-value'
 
-    
+    def to_json(self):
+        ret = {}
+        if isinstance(self.value,Element) or isinstance(self.value,list):
+            raise Exception(f'{type(self)} need value is  List or base type like int string...')
+        # elif isinstance(self.value,list):
+        #     ret_value =  RowsElement(self.value).to_json()
+        else:
+            ret_value = self.value
+        return {
+            self.key:ret_value
+        }
+
     def to_string(self):
-        return f'key:{self.key} value:{self.value}'
+        return super().to_string()
 
     def layout(self, app=None):
         if isinstance(self.value,Element):
